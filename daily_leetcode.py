@@ -53,19 +53,20 @@ HEADERS = {
 }
 
 QUERY = """
-query problemsetQuestionList($skip: Int, $limit: Int, $filters: QuestionListFilterInput) {
-  questionList: problemsetQuestionListV2(
-    skip: $skip
+query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
+  problemsetQuestionList: questionList(
+    categorySlug: $categorySlug
     limit: $limit
+    skip: $skip
     filters: $filters
   ) {
-    questions {
-      id
-      titleSlug
-      title
+    total: totalNum
+    questions: data {
       difficulty
-      questionFrontendId
-      paidOnly
+      title
+      titleSlug
+      frontendQuestionId: questionFrontendId
+      paidOnly: isPaidOnly
       topicTags { name slug }
     }
   }
@@ -83,19 +84,21 @@ def fetch_questions(topic_slug, difficulty, limit=100):
     payload = {
         "query": QUERY,
         "variables": {
+            "categorySlug": "",
             "skip": 0,
             "limit": limit,
             "filters": {
-                "filterCombineType": "ALL",
-                "difficultyFilter": {"difficulties": [difficulty], "operator": "IS"},
-                "topicFilter": {"topicSlugs": [topic_slug], "operator": "IS"},
+                "difficulty": difficulty,
+                "tags": [topic_slug],
             },
         },
     }
     resp = requests.post(LEETCODE_GRAPHQL_URL, json=payload, headers=HEADERS, timeout=15)
     resp.raise_for_status()
     data = resp.json()
-    questions = data["data"]["questionList"]["questions"]
+    if "errors" in data:
+        raise RuntimeError(f"LeetCode GraphQL error: {data['errors']}")
+    questions = data["data"]["problemsetQuestionList"]["questions"]
     # Drop premium-only questions since they can't be opened for free
     return [q for q in questions if not q.get("paidOnly")]
 
