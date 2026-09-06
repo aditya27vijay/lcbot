@@ -130,7 +130,7 @@ def main():
     questions = fetch_questions(topic["slug"], DIFFICULTY)
     sent_ids = load_sent_ids()
 
-    unsent = [q for q in questions if q["questionFrontendId"] not in sent_ids]
+    unsent = [q for q in questions if q["frontendQuestionId"] not in sent_ids]
 
     # If we've exhausted the pool for this topic, reset just for this topic
     # so the rotation never dries up.
@@ -146,13 +146,13 @@ def main():
 
     lines = [f"📅 Today's topic: {topic['name']} | {DIFFICULTY.title()}"]
     for q in picks:
-        lines.append(f"#{q['questionFrontendId']} - https://leetcode.com/problems/{q['titleSlug']}/")
+        lines.append(f"#{q['frontendQuestionId']} - https://leetcode.com/problems/{q['titleSlug']}/")
 
     message = "\n".join(lines)
     print(message)
     send_telegram_message(message)
 
-    sent_ids.update(q["questionFrontendId"] for q in picks)
+    sent_ids.update(q["frontendQuestionId"] for q in picks)
     save_sent_ids(sent_ids)
 
 
