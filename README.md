@@ -34,7 +34,23 @@ Go to the **Actions** tab → "Daily LeetCode Questions" workflow → **Run work
 (this is the `workflow_dispatch` trigger). You should get a Telegram message
 within a few seconds.
 
-That's it — it will now run automatically every day at 08:00 IST.
+### 6. Set up the reliable daily trigger (cron-job.org)
+GitHub's built-in `schedule` trigger can be delayed or skipped, so use
+[cron-job.org](https://cron-job.org) (free) to call GitHub's API directly instead:
+
+1. Create a GitHub **fine-grained personal access token**: Settings → Developer
+   settings → Personal access tokens → Fine-grained tokens → select this repo →
+   set **Actions** permission to **Read and write**.
+2. Sign up at cron-job.org → **Create cronjob**:
+   - URL: `https://api.github.com/repos/YOUR_USERNAME/YOUR_REPO/actions/workflows/daily.yml/dispatches`
+   - Method: `POST`
+   - Headers: `Authorization: Bearer YOUR_TOKEN`, `Accept: application/vnd.github+json`, `X-GitHub-Api-Version: 2022-11-28`
+   - Body (JSON): `{"ref": "main"}` (use your actual default branch name)
+   - Schedule: daily, timezone IST, time 08:00
+3. Save, then run cron-job.org's "Test run" — confirm a new run appears in your repo's Actions tab.
+
+Keep GitHub's own `schedule` trigger in `daily.yml` too — it's harmless to have
+both, and acts as a backup if cron-job.org ever has an outage.
 
 ## Customizing
 
