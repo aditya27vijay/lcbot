@@ -29,14 +29,10 @@ In the repo: **Settings → Secrets and variables → Actions → New repository
 - `TELEGRAM_BOT_TOKEN` → paste your bot token
 - `TELEGRAM_CHAT_ID` → paste your chat ID
 
-### 5. Test it
-Go to the **Actions** tab → "Daily LeetCode Questions" workflow → **Run workflow**
-(this is the `workflow_dispatch` trigger). You should get a Telegram message
-within a few seconds.
-
-### 6. Set up the reliable daily trigger (cron-job.org)
-GitHub's built-in `schedule` trigger can be delayed or skipped, so use
-[cron-job.org](https://cron-job.org) (free) to call GitHub's API directly instead:
+### 5. Set up the daily trigger (cron-job.org)
+GitHub's built-in `schedule` trigger can fire late or get skipped, so this
+setup uses [cron-job.org](https://cron-job.org) (free) to call GitHub's API
+directly instead:
 
 1. Create a GitHub **fine-grained personal access token**: Settings → Developer
    settings → Personal access tokens → Fine-grained tokens → select this repo →
@@ -49,13 +45,12 @@ GitHub's built-in `schedule` trigger can be delayed or skipped, so use
    - Schedule: daily, timezone IST, time 08:00
 3. Save, then run cron-job.org's "Test run" — confirm a new run appears in your repo's Actions tab.
 
-Keep GitHub's own `schedule` trigger in `daily.yml` too — it's harmless to have
-both, and acts as a backup if cron-job.org ever has an outage.
+You can also trigger a run manually anytime from the **Actions** tab →
+"Daily LeetCode Questions" → **Run workflow**.
 
 ## Customizing
 
-- **Change the time:** edit the `cron` line in `.github/workflows/daily.yml`
-  (cron times are in UTC — IST is UTC+5:30).
+- **Change the time:** edit the schedule time in your cron-job.org cronjob settings.
 - **Change topics:** edit the `TOPICS` list at the top of `daily_leetcode.py`.
   Each entry needs the LeetCode tag `slug` — you can find these in the URL
   when you filter by tag on leetcode.com/problemset.
